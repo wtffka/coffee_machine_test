@@ -1,0 +1,1 @@
+web: sh build/install/test_task/bin/test_task
