@@ -5,11 +5,11 @@ import com.example.test_task.model.CoffeeMachine;
 import com.example.test_task.model.CoffeeMachineOperation;
 import com.example.test_task.repository.CoffeeMachineOperationRepository;
 import com.example.test_task.service.CoffeeMachineService;
-import com.example.test_task.utils.CoffeeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -23,34 +23,26 @@ public class CoffeeMachineServiceImpl implements CoffeeMachineService {
     }
 
     @Override
-    public String turnOnCoffeeMachine(CoffeeMachine coffeeMachine) {
-        if (!coffeeMachine.isOn()) {
-            tuneAndSave(true, coffeeMachine);
-            return "Coffee machine is on. You can brew coffee you want!";
-        }
-        return "Coffee machine is already on";
-    }
-
-    @Override
-    public String turnOffCoffeeMachine(CoffeeMachine coffeeMachine) {
+    public String turnOnOffCoffeeMachine(CoffeeMachine coffeeMachine) {
         if (coffeeMachine.isOn()) {
             tuneAndSave(false, coffeeMachine);
             return "Coffee machine is off. Turn on to brew coffee!";
         }
-        return "Coffee machine is already off.";
+        tuneAndSave(true, coffeeMachine);
+        return "Coffee machine is on. You can brew coffee you want!";
     }
 
     private void tuneAndSave(boolean isOn, CoffeeMachine coffeeMachine) {
         CoffeeMachineOperation operation = new CoffeeMachineOperation();
+        operation.setLaunchedAt(LocalDateTime.now().withNano(0));
         operation.setOn(isOn);
         coffeeMachine.setOn(isOn);
         coffeeMachineOperationRepository.save(operation);
     }
 
     @Override
-    public String createNewOperation(CoffeeMachineOperationDto coffeeMachineOperationDto, CoffeeMachine coffeeMachine) {
-        if (coffeeMachine.isOn()) return fromDto(coffeeMachineOperationDto).toString();
-        return "Coffee machine is off. Turn on to brew coffee.";
+    public String createNewOperation(CoffeeMachineOperationDto coffeeMachineOperationDto) {
+        return fromDto(coffeeMachineOperationDto).toString();
     }
 
     @Override
@@ -59,12 +51,12 @@ public class CoffeeMachineServiceImpl implements CoffeeMachineService {
     }
 
     @Override
-    public Iterable<CoffeeMachineOperation> getOperationsByCoffeeType(CoffeeTypes type) {
+    public List<CoffeeMachineOperation> getOperationsByCoffeeType(String type) {
         return coffeeMachineOperationRepository.findCoffeeMachineOperationByType(type);
     }
 
     @Override
-    public Iterable<CoffeeMachineOperation> getAll() {
+    public List<CoffeeMachineOperation> getAll() {
         return coffeeMachineOperationRepository.findAll();
     }
 
@@ -74,8 +66,8 @@ public class CoffeeMachineServiceImpl implements CoffeeMachineService {
     }
 
     @Override
-    public void deleteByCoffeeType(CoffeeTypes type) {
-        Iterable<CoffeeMachineOperation> operationsByCoffeeType = getOperationsByCoffeeType(type);
+    public void deleteByCoffeeType(String type) {
+        List<CoffeeMachineOperation> operationsByCoffeeType = getOperationsByCoffeeType(type);
         coffeeMachineOperationRepository.deleteAllInBatch(operationsByCoffeeType);
     }
 
@@ -86,7 +78,8 @@ public class CoffeeMachineServiceImpl implements CoffeeMachineService {
 
     private CoffeeMachineOperation fromDto (CoffeeMachineOperationDto coffeeMachineOperationDto) {
         CoffeeMachineOperation operation = new CoffeeMachineOperation();
-        operation.setType(CoffeeTypes.valueOf(coffeeMachineOperationDto.getType().toUpperCase()));
+        operation.setOn(true);
+        operation.setType(coffeeMachineOperationDto.getType().toUpperCase());
         operation.setLaunchedAt(LocalDateTime.now().withNano(0));
         return coffeeMachineOperationRepository.save(operation);
     }

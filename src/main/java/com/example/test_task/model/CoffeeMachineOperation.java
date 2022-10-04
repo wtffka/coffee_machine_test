@@ -1,17 +1,14 @@
 package com.example.test_task.model;
 
-import com.example.test_task.utils.CoffeeTypes;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.GenerationType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,8 +23,7 @@ public class CoffeeMachineOperation {
 
     private boolean isOn;
 
-    @Enumerated(EnumType.STRING)
-    private CoffeeTypes type;
+    private String type;
 
     private LocalDateTime launchedAt;
 
